@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VIN THE TRADER — Blueprint v1.0</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap');
+
+  :root {
+    --bg:       #0a0a0c;
+    --surface:  #111116;
+    --card:     #16161d;
+    --border:   #2a2a38;
+    --gold:     #c9a84c;
+    --gold-dim: #7a6130;
+    --green:    #3dd68c;
+    --red:      #e05c5c;
+    --amber:    #f0a832;
+    --text:     #e8e4d8;
+    --muted:    #6b6880;
+    --label:    #9994b0;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 15px;
+    line-height: 1.7;
+    padding: 40px 20px 80px;
+  }
+
+  .page {
+    max-width: 860px;
+    margin: 0 auto;
+  }
+
+  /* ── HEADER ── */
+  .header {
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 32px;
+    margin-bottom: 48px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .header-eyebrow {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--gold);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+  }
+  .header-title {
+    font-size: 38px;
+    font-weight: 700;
+    letter-spacing: -1px;
+    color: var(--text);
+    line-height: 1.1;
+  }
+  .header-title span { color: var(--gold); }
+  .header-sub {
+    font-size: 13px;
+    color: var(--muted);
+    font-family: 'Space Mono', monospace;
+    margin-top: 4px;
+  }
+
+  /* ── SECTION ── */
+  .section {
+    margin-bottom: 52px;
+  }
+  .section-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    color: var(--gold);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+  .section-title {
+    font-size: 22px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 20px;
+    letter-spacing: -0.3px;
+  }
+
+  /* ── FLOW STEPS ── */
+  .flow {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+  .step {
+    display: grid;
+    grid-template-columns: 52px 1fr;
+    gap: 0 20px;
+    position: relative;
+  }
+  .step:not(:last-child) .step-line {
+    position: absolute;
+    left: 25px;
+    top: 52px;
+    bottom: 0;
+    width: 2px;
+    background: linear-gradient(to bottom, var(--gold-dim), transparent);
+  }
+  .step-num {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    border: 2px solid var(--gold-dim);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Space Mono', monospace;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--gold);
+    background: var(--card);
+    flex-shrink: 0;
+    position: relative;
+    z-index: 1;
+  }
+  .step-body {
+    padding: 12px 0 36px;
+  }
+  .step-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 6px;
+  }
+  .step-desc {
+    color: var(--label);
+    font-size: 14px;
+    line-height: 1.65;
+  }
+  .step-desc strong {
+    color: var(--text);
+    font-weight: 500;
+  }
+  .step-tag {
+    display: inline-block;
+    margin-top: 10px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 3px 10px;
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--amber);
+    letter-spacing: 1px;
+  }
+
+  /* ── CONDITION CARDS ── */
+  .cards {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+  }
+  @media (max-width: 600px) { .cards { grid-template-columns: 1fr; } }
+
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 20px;
+  }
+  .card-icon {
+    font-size: 20px;
+    margin-bottom: 10px;
+  }
+  .card-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 6px;
+    letter-spacing: 0.2px;
+  }
+  .card-body {
+    font-size: 13px;
+    color: var(--label);
+    line-height: 1.6;
+  }
+  .card-body strong { color: var(--gold); font-weight: 500; }
+  .card.pass { border-color: #2a4a38; }
+  .card.fail { border-color: #4a2a2a; }
+
+  /* ── FTWM STATES ── */
+  .ftwm-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-top: 4px;
+  }
+  @media (max-width: 540px) { .ftwm-grid { grid-template-columns: 1fr 1fr; } }
+  .ftwm-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 14px 16px;
+    text-align: center;
+  }
+  .ftwm-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  .ftwm-value {
+    font-size: 13px;
+    font-weight: 600;
+  }
+  .ftwm-value.ok { color: var(--green); }
+  .ftwm-value.no { color: var(--red); }
+  .ftwm-value.neutral { color: var(--amber); }
+
+  /* ── RISK TABLE ── */
+  .risk-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+  }
+  .risk-table th {
+    text-align: left;
+    padding: 10px 16px;
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: var(--muted);
+    text-transform: uppercase;
+    border-bottom: 1px solid var(--border);
+  }
+  .risk-table td {
+    padding: 14px 16px;
+    border-bottom: 1px solid #1c1c26;
+    color: var(--label);
+    vertical-align: top;
+  }
+  .risk-table tr:last-child td { border-bottom: none; }
+  .risk-table td:first-child {
+    color: var(--text);
+    font-weight: 500;
+    width: 180px;
+  }
+  .val-green { color: var(--green); font-weight: 600; font-family: 'Space Mono', monospace; }
+  .val-red   { color: var(--red);   font-weight: 600; font-family: 'Space Mono', monospace; }
+  .val-gold  { color: var(--gold);  font-weight: 600; font-family: 'Space Mono', monospace; }
+  .val-amber { color: var(--amber); font-weight: 600; font-family: 'Space Mono', monospace; }
+
+  /* ── OSCILLATOR VISUAL ── */
+  .osc-block {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 24px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+  @media (max-width: 540px) { .osc-block { grid-template-columns: 1fr; } }
+  .osc-item { }
+  .osc-role {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  .osc-role.upper { color: var(--red); }
+  .osc-role.lower { color: var(--green); }
+  .osc-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 6px;
+  }
+  .osc-desc { font-size: 13px; color: var(--label); line-height: 1.6; }
+  .osc-desc strong { color: var(--text); }
+  .osc-divider {
+    width: 1px;
+    background: var(--border);
+  }
+  @media (max-width: 540px) { .osc-divider { display: none; } }
+
+  /* ── VETO BOX ── */
+  .veto-box {
+    background: #1a1008;
+    border: 1px solid #4a3010;
+    border-radius: 8px;
+    padding: 18px 20px;
+    margin-top: 14px;
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+  }
+  .veto-icon { font-size: 18px; flex-shrink: 0; margin-top: 2px; }
+  .veto-text { font-size: 13px; color: #b8956a; line-height: 1.6; }
+  .veto-text strong { color: var(--amber); }
+
+  /* ── NO-TRADE BOX ── */
+  .notrade-box {
+    background: #1a0808;
+    border: 1px solid #4a1a1a;
+    border-radius: 8px;
+    padding: 18px 20px;
+    margin-top: 14px;
+  }
+  .notrade-title {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--red);
+    letter-spacing: 2px;
+    margin-bottom: 10px;
+  }
+  .notrade-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .notrade-list li {
+    font-size: 13px;
+    color: #b06060;
+    padding-left: 18px;
+    position: relative;
+  }
+  .notrade-list li::before {
+    content: '✕';
+    position: absolute;
+    left: 0;
+    color: var(--red);
+    font-size: 11px;
+    top: 2px;
+  }
+
+  /* ── FOOTER ── */
+  .footer {
+    margin-top: 60px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+  }
+
+  /* ── QUICK REF STRIP ── */
+  .qr-strip {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin-top: 4px;
+  }
+  @media (max-width: 560px) { .qr-strip { grid-template-columns: 1fr 1fr; } }
+  .qr-item {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 14px;
+    text-align: center;
+  }
+  .qr-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 6px;
+  }
+  .qr-val {
+    font-size: 18px;
+    font-weight: 700;
+    font-family: 'Space Mono', monospace;
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="header-eyebrow">Vin The Trader · NAS100 / MNQ</div>
+    <div class="header-title">Trading <span>Blueprint</span></div>
+    <div class="header-sub">v1.0 · NY Session Scalping · Three-Phase Execution</div>
+  </div>
+
+  <!-- SECTION 1: EXECUTION FLOW -->
+  <div class="section">
+    <div class="section-label">Phase Flow</div>
+    <div class="section-title">Three-Phase Execution</div>
+
+    <div class="flow">
+
+      <!-- PHASE 1 -->
+      <div class="step">
+        <div class="step-line"></div>
+        <div class="step-num">01</div>
+        <div class="step-body">
+          <div class="step-title">HTF Liquidity Sweep + Market Shift</div>
+          <div class="step-desc">
+            Identify a <strong>higher timeframe liquidity level</strong> (swing high/low, BSL/SSL) that has been swept. A sweep alone is not enough — wait for a <strong>confirmed market structure shift (MSS)</strong> on the same or next lower timeframe to validate the sweep as genuine reversal intent, not just a wick hunt.<br><br>
+            <strong>Valid signal:</strong> Price sweeps the level AND closes back through it with displacement, breaking a prior swing in the opposite direction.
+          </div>
+          <span class="step-tag">4H · 15M BIAS FRAME</span>
+        </div>
+      </div>
+
+      <!-- PHASE 2 -->
+      <div class="step">
+        <div class="step-line"></div>
+        <div class="step-num">02</div>
+        <div class="step-body">
+          <div class="step-title">IFVG Entry on 1M</div>
+          <div class="step-desc">
+            Drop to the <strong>1-minute chart</strong> and locate a <strong>bearish FVG</strong>. Wait for price to <strong>close above it</strong> — this invalidates the bearish gap and converts it into an <strong>Inverted FVG (IFVG)</strong> long setup. Enter long on the <strong>retest</strong> of that IFVG zone.<br><br>
+            The IFVG must be <strong>directionally aligned</strong> with the HTF bias confirmed in Phase 01. Do not take counter-trend IFVGs.
+          </div>
+          <span class="step-tag">1M ENTRY FRAME</span>
+        </div>
+      </div>
+
+      <!-- PHASE 3 -->
+      <div class="step">
+        <div class="step-num">03</div>
+        <div class="step-body">
+          <div class="step-title">Confluence Confirmation</div>
+          <div class="step-desc">
+            Before pulling the trigger, <strong>both</strong> FTWM and Volumetric Spectrogram conditions must be met. See sections below. If either fails — <strong>no trade</strong>.
+          </div>
+          <span class="step-tag">INDICATORS CONFIRM</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- SECTION 2: FTWM -->
+  <div class="section">
+    <div class="section-label">Indicator · Gate 01</div>
+    <div class="section-title">FTWM Conditions</div>
+
+    <p style="color:var(--label); font-size:14px; margin-bottom:20px;">
+      The <strong style="color:var(--text)">Five-Component Trading Weight Matrix</strong> must show a neutral or bullish reading at entry — specifically, it should be <strong style="color:var(--text)">shifting from bearish toward neutral or bullish</strong>, confirming momentum is rotating in your favour.
+    </p>
+
+    <div class="ftwm-grid">
+      <div class="ftwm-card">
+        <div class="ftwm-label">State</div>
+        <div class="ftwm-value ok">Bullish</div>
+      </div>
+      <div class="ftwm-card">
+        <div class="ftwm-label">State</div>
+        <div class="ftwm-value neutral">Neutral</div>
+      </div>
+      <div class="ftwm-card">
+        <div class="ftwm-label">State</div>
+        <div class="ftwm-value neutral" style="color:var(--amber)">Bearish → Neutral</div>
+      </div>
+      <div class="ftwm-card">
+        <div class="ftwm-label">State</div>
+        <div class="ftwm-value no">Bearish</div>
+      </div>
+      <div class="ftwm-card">
+        <div class="ftwm-label">State</div>
+        <div class="ftwm-value no">Strongly Bearish</div>
+      </div>
+    </div>
+
+    <div class="veto-box" style="margin-top:16px;">
+      <div class="veto-icon">⚡</div>
+      <div class="veto-text">
+        <strong>Regime Core is the master veto.</strong> If Regime Core is bearish, the trade is off regardless of what other components show. OBV Core + CVD Core act as the flow veto pair — both must not be working against the trade direction.
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 3: VOLUMETRIC -->
+  <div class="section">
+    <div class="section-label">Indicator · Gate 02</div>
+    <div class="section-title">Volumetric Spectrogram Conditions</div>
+
+    <div class="osc-block">
+      <div class="osc-item">
+        <div class="osc-role upper">Upper Oscillator · Dotted Line</div>
+        <div class="osc-name">Volume Above Price (Resistance)</div>
+        <div class="osc-desc">
+          Must be <strong>expanding</strong> — increasing activity above price signals that distribution/overhead pressure is being absorbed or building participation. Look for the dotted line rising or starting to pulse upward as price enters the IFVG zone.
+        </div>
+      </div>
+      <div class="osc-item">
+        <div class="osc-role lower">Lower Oscillator · Solid Line</div>
+        <div class="osc-name">Volume Below Price (Support)</div>
+        <div class="osc-desc">
+          Must be <strong>becoming less negative, trending toward zero</strong>. A solid line moving from deep negative toward zero confirms the support floor is strengthening. It does not need to go positive — the directional shift is the signal. Colour is optional and secondary.
+        </div>
+      </div>
+    </div>
+
+    <div class="veto-box" style="margin-top:14px; background:#0d1a10; border-color:#1e4028;">
+      <div class="veto-icon">📊</div>
+      <div class="veto-text" style="color:#6bbf8a;">
+        <strong style="color:var(--green)">Reading the combination:</strong> Upper expanding + lower less-negative = volume is activating on both sides. This is the participation signature of a genuine move, not a noise wick. Background colour (green/red) on 3M for bias, 1M for timing — but colour alone is never sufficient.
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 4: CHECKLIST -->
+  <div class="section">
+    <div class="section-label">Pre-Trade Gate</div>
+    <div class="section-title">Entry Checklist</div>
+
+    <div class="cards">
+      <div class="card pass">
+        <div class="card-icon">✅</div>
+        <div class="card-title">HTF Liquidity Swept</div>
+        <div class="card-body">A clear swing high or low (BSL/SSL) has been taken out with visible displacement.</div>
+      </div>
+      <div class="card pass">
+        <div class="card-icon">✅</div>
+        <div class="card-title">Market Shift Confirmed</div>
+        <div class="card-body">A <strong>structure break in the opposite direction</strong> confirms the sweep was genuine — not just noise.</div>
+      </div>
+      <div class="card pass">
+        <div class="card-icon">✅</div>
+        <div class="card-title">IFVG Formed on 1M</div>
+        <div class="card-body">Bearish FVG on 1M has been <strong>closed above</strong> by a candle. Price is now retesting from above.</div>
+      </div>
+      <div class="card pass">
+        <div class="card-icon">✅</div>
+        <div class="card-title">FTWM: Neutral or Bullish</div>
+        <div class="card-body">FTWM is not bearish. Regime Core is not vetoing. Transition from bearish toward neutral is acceptable.</div>
+      </div>
+      <div class="card pass">
+        <div class="card-icon">✅</div>
+        <div class="card-title">Upper Oscillator Expanding</div>
+        <div class="card-body">Dotted line (vol above price) is rising or pulsing upward at the time of entry.</div>
+      </div>
+      <div class="card pass">
+        <div class="card-icon">✅</div>
+        <div class="card-title">Lower Oscillator Rising</div>
+        <div class="card-body">Solid line (vol below price) is moving toward zero — support floor is building. Colour is optional.</div>
+      </div>
+    </div>
+
+    <div class="notrade-box">
+      <div class="notrade-title">// NO TRADE CONDITIONS</div>
+      <ul class="notrade-list">
+        <li>Sweep without a confirmed market structure shift</li>
+        <li>IFVG direction conflicts with HTF bias</li>
+        <li>FTWM Regime Core is bearish (master veto)</li>
+        <li>Lower oscillator still deeply negative with no upward movement</li>
+        <li>Price entering IFVG with no volumetric expansion visible</li>
+        <li>Daily loss limit reached (FTMO: –$500 / LucidFlex: trailing max)</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- SECTION 5: TRADE MANAGEMENT -->
+  <div class="section">
+    <div class="section-label">Execution · Risk</div>
+    <div class="section-title">Trade Management Rules</div>
+
+    <table class="risk-table" style="background:var(--card); border-radius:8px; overflow:hidden; border: 1px solid var(--border);">
+      <thead>
+        <tr>
+          <th>Parameter</th>
+          <th>Rule</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Stop Loss</td>
+          <td><span class="val-red">30 points</span> — placed beyond the IFVG boundary. Fixed. Do not widen.</td>
+        </tr>
+        <tr>
+          <td>Breakeven</td>
+          <td>Move SL to entry when price reaches <span class="val-amber">1:1 R</span> (30 points in profit). Protect the trade.</td>
+        </tr>
+        <tr>
+          <td>Minimum Target</td>
+          <td><span class="val-green">1:2 R</span> — 60 points. This is the baseline exit. Do not close early unless structure demands it.</td>
+        </tr>
+        <tr>
+          <td>Position Size</td>
+          <td>Max <span class="val-gold">1% account risk</span> per trade. Size from SL distance, not from feel.</td>
+        </tr>
+        <tr>
+          <td>Max Trades / Day</td>
+          <td><span class="val-gold">3 trades</span> maximum. Third trade must be A+ quality only.</td>
+        </tr>
+        <tr>
+          <td>Session Kill Switch</td>
+          <td>Stop trading at <span class="val-red">–2R</span> on the day. Come back tomorrow.</td>
+        </tr>
+        <tr>
+          <td>Partial Exits</td>
+          <td>Optional: close 50% at 1:1, move to BE, let runner target 1:3+.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- Quick ref strip -->
+    <div class="qr-strip" style="margin-top:16px;">
+      <div class="qr-item">
+        <div class="qr-label">Stop Loss</div>
+        <div class="qr-val" style="color:var(--red)">30 pts</div>
+      </div>
+      <div class="qr-item">
+        <div class="qr-label">Breakeven</div>
+        <div class="qr-val" style="color:var(--amber)">1:1</div>
+      </div>
+      <div class="qr-item">
+        <div class="qr-label">Target</div>
+        <div class="qr-val" style="color:var(--green)">1:2</div>
+      </div>
+      <div class="qr-item">
+        <div class="qr-label">Kill Switch</div>
+        <div class="qr-val" style="color:var(--red)">–2R</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 6: SYSTEM IDENTITY -->
+  <div class="section">
+    <div class="section-label">Mindset</div>
+    <div class="section-title">System Identity</div>
+
+    <div style="background:var(--card); border:1px solid var(--border); border-radius:8px; padding:24px; display:flex; flex-direction:column; gap:16px;">
+      <div style="font-size:13px; color:var(--label); line-height:1.8;">
+        This system trades <strong style="color:var(--text)">one idea</strong> — the footprint left when smart money sweeps liquidity and reverses. Everything else is noise. Your edge is not in catching every move. It is in <strong style="color:var(--gold)">catching the right move, validated, confirmed, and sized correctly</strong>.
+      </div>
+      <div style="border-top:1px solid var(--border); padding-top:16px; display:flex; flex-direction:column; gap:10px;">
+        <div style="font-family:'Space Mono',monospace; font-size:12px; color:var(--gold);">// CORE RULES</div>
+        <div style="font-size:13px; color:var(--label);">→ No sweep + no shift = no trade. Ever.</div>
+        <div style="font-size:13px; color:var(--label);">→ FTWM and Volumetric are both required. One is not enough.</div>
+        <div style="font-size:13px; color:var(--label);">→ 30pt SL is fixed. Widening the SL is breaking the system.</div>
+        <div style="font-size:13px; color:var(--label);">→ BE at 1:1 is non-negotiable. Protect capital, let winners run.</div>
+        <div style="font-size:13px; color:var(--label);">→ The kill switch at –2R is an identity rule, not a suggestion.</div>
+        <div style="font-size:13px; color:var(--label);">→ Patience is the strategy. Wait for the setup to come to you.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="footer">
+    <span>Vin The Trader · Oberlunar Community</span>
+    <span>Blueprint v1.0 · NAS100 / MNQ</span>
+  </div>
+
+</div>
+</body>
+</html>
